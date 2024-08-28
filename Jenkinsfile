@@ -10,17 +10,19 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bat
+                bat '''
                 call %VENV_PATH%
-                'python -m py_compile sources/add2vals.py sources/calc.py'
+                python -m py_compile sources/add2vals.py sources/calc.py
                 stash(name: 'compiled-results', includes: 'sources/*.py*')
+                '''
             }
         }
         stage('Test') {
             steps {
-                bat 
+                bat '''
                 call %VENV_PATH%
-                'pytest --junit-xml test-reports/results.xml sources/test_calc.py'
+                pytest --junit-xml test-reports/results.xml sources/test_calc.py
+                '''
             }
             post {
                 always {
@@ -30,9 +32,10 @@ pipeline {
         }
         stage('Deliver') { 
             steps {
-                bat 
+                bat '''
                 call %VENV_PATH%
-                "pyinstaller --onefile sources/add2vals.py" 
+                pyinstaller --onefile sources/add2vals.py
+                '''
             }
             post {
                 success {
